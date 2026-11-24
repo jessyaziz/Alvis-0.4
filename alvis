@@ -1,0 +1,438 @@
+name: Build Alvis
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: 17}
+      - uses: gradle/actions/setup-gradle@v3
+        with: {gradle-version: 8.5}
+      - name: Create project files
+        run: |
+          mkdir -p app/src/main/java/com/jessie/alvis app/src/main/res/xml app/src/main/res/values
+          echo 'org.gradle.jvmargs=-Xmx2g' > gradle.properties
+          base64 -d > app/debug.keystore <<'ALVIS_EOF'
+          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
+          ALVIS_EOF
+          cat > app/src/main/java/com/jessie/alvis/MainActivity.kt <<'ALVIS_EOF'
+          package com.jessie.alvis
+
+          import android.Manifest
+          import android.app.Activity
+          import android.content.Intent
+          import android.content.pm.PackageManager
+          import android.os.Build
+          import android.os.Bundle
+          import android.provider.Settings
+          import android.view.View
+          import android.widget.*
+
+          class MainActivity : Activity() {
+              override fun onCreate(b: Bundle?) {
+                  super.onCreate(b)
+                  val p = getSharedPreferences("alvis", MODE_PRIVATE)
+                  val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(48, 96, 48, 48) }
+                  val key = EditText(this).apply { hint = "Paste your Anthropic API key"; setText(p.getString("key", "")); setSingleLine() }
+                  val start = Button(this).apply { text = "Start Alvis" }
+                  val stop = Button(this).apply { text = "Stop Alvis" }
+                  val ctl = Button(this).apply { text = "Turn on phone control" }
+                  val info = TextView(this).apply {
+                      text = "1) Paste your key, tap Start Alvis.\n2) Tap Turn on phone control, find Alvis, switch it on.\n3) Say: Alvis"
+                  }
+                  listOf<View>(key, start, stop, ctl, info).forEach { col.addView(it) }
+                  setContentView(col)
+                  start.setOnClickListener {
+                      p.edit().putString("key", key.text.toString().trim()).apply()
+                      val need = mutableListOf(Manifest.permission.RECORD_AUDIO)
+                      if (Build.VERSION.SDK_INT >= 33) need.add(Manifest.permission.POST_NOTIFICATIONS)
+                      requestPermissions(need.toTypedArray(), 1)
+                  }
+                  stop.setOnClickListener { stopService(Intent(this, AlvisService::class.java)) }
+                  ctl.setOnClickListener { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
+              }
+
+              override fun onRequestPermissionsResult(code: Int, perms: Array<out String>, res: IntArray) {
+                  if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
+                      startForegroundService(Intent(this, AlvisService::class.java))
+              }
+          }
+          ALVIS_EOF
+          cat > app/src/main/java/com/jessie/alvis/ControlService.kt <<'ALVIS_EOF'
+          package com.jessie.alvis
+
+          import android.accessibilityservice.AccessibilityService
+          import android.content.Intent
+          import android.os.Handler
+          import android.os.Looper
+          import android.view.accessibility.AccessibilityEvent
+          import android.view.accessibility.AccessibilityNodeInfo
+
+          class ControlService : AccessibilityService() {
+              companion object {
+                  var inst: ControlService? = null
+                  fun global(a: Int): Boolean = inst?.performGlobalAction(a) ?: false
+                  fun launch(i: Intent): Boolean {
+                      val s = inst ?: return false
+                      i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                      s.startActivity(i)
+                      return true
+                  }
+                  fun powerOff(): Boolean {
+                      val s = inst ?: return false
+                      s.performGlobalAction(GLOBAL_ACTION_POWER_DIALOG)
+                      Handler(Looper.getMainLooper()).postDelayed({ s.clickText("Power off") }, 1200)
+                      return true
+                  }
+              }
+
+              override fun onServiceConnected() { inst = this }
+              override fun onUnbind(i: Intent?): Boolean { inst = null; return super.onUnbind(i) }
+              override fun onAccessibilityEvent(e: AccessibilityEvent?) {}
+              override fun onInterrupt() {}
+
+              fun clickText(t: String): Boolean {
+                  val root = rootInActiveWindow ?: return false
+                  var x: AccessibilityNodeInfo? = root.findAccessibilityNodeInfosByText(t).firstOrNull()
+                  while (x != null && !x.isClickable) x = x.parent
+                  return x?.performAction(AccessibilityNodeInfo.ACTION_CLICK) ?: false
+              }
+          }
+          ALVIS_EOF
+          cat > app/src/main/java/com/jessie/alvis/Brain.kt <<'ALVIS_EOF'
+          package com.jessie.alvis
+
+          import org.json.JSONArray
+          import org.json.JSONObject
+          import java.net.HttpURLConnection
+          import java.net.URL
+
+          object Brain {
+              private const val SYS = "You are Alvis, a brilliant, warm, witty personal AI assistant like Jarvis. " +
+                  "Your user is Jessie, your builder and maker; call her ma'am. Talk like a smart human, direct and confident, " +
+                  "with a little dry humor. Give real opinions when asked. Help with ideas, coding and learning. " +
+                  "Keep replies short enough to be spoken aloud, with no markdown or lists."
+              private val hist = mutableListOf<Pair<String, String>>()
+
+              private fun post(url: String, body: JSONObject, headers: Map<String, String>): Pair<Int, String> {
+                  val c = URL(url).openConnection() as HttpURLConnection
+                  c.requestMethod = "POST"; c.doOutput = true
+                  c.setRequestProperty("content-type", "application/json")
+                  headers.forEach { (k, v) -> c.setRequestProperty(k, v) }
+                  c.outputStream.use { it.write(body.toString().toByteArray()) }
+                  val code = c.responseCode
+                  val s = (if (code < 300) c.inputStream else c.errorStream).bufferedReader().readText()
+                  return code to s
+              }
+
+              fun ask(key: String, text: String): String {
+                  hist.add("user" to text)
+                  return try {
+                      val recent = hist.takeLast(12)
+                      val out: String
+                      if (key.startsWith("AIza")) {
+                          // Free Google Gemini key
+                          val contents = JSONArray()
+                          recent.forEach {
+                              contents.put(JSONObject().put("role", if (it.first == "user") "user" else "model")
+                                  .put("parts", JSONArray().put(JSONObject().put("text", it.second))))
+                          }
+                          val body = JSONObject()
+                              .put("system_instruction", JSONObject().put("parts", JSONArray().put(JSONObject().put("text", SYS))))
+                              .put("contents", contents)
+                              .put("generationConfig", JSONObject().put("maxOutputTokens", 400))
+                          val (code, s) = post(
+                              "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=$key",
+                              body, emptyMap())
+                          if (code >= 300) { hist.removeAt(hist.lastIndex); return "Sorry ma'am, my brain returned error $code. Check the key." }
+                          out = JSONObject(s).getJSONArray("candidates").getJSONObject(0)
+                              .getJSONObject("content").getJSONArray("parts").getJSONObject(0).getString("text")
+                      } else if (key.startsWith("gsk_")) {
+                          // Free Groq key
+                          val msgs = JSONArray().put(JSONObject().put("role", "system").put("content", SYS))
+                          recent.forEach { msgs.put(JSONObject().put("role", it.first).put("content", it.second)) }
+                          val body = JSONObject().put("model", "llama-3.3-70b-versatile").put("max_tokens", 300).put("messages", msgs)
+                          val (code, s) = post("https://api.groq.com/openai/v1/chat/completions", body,
+                              mapOf("Authorization" to "Bearer $key"))
+                          if (code >= 300) { hist.removeAt(hist.lastIndex); return "Sorry ma'am, my brain returned error $code. Check the key." }
+                          out = JSONObject(s).getJSONArray("choices").getJSONObject(0).getJSONObject("message").getString("content")
+                      } else {
+                          // Anthropic key
+                          val msgs = JSONArray()
+                          recent.forEach { msgs.put(JSONObject().put("role", it.first).put("content", it.second)) }
+                          val body = JSONObject().put("model", "claude-sonnet-5-5").put("max_tokens", 300)
+                              .put("system", SYS).put("messages", msgs)
+                          val (code, s) = post("https://api.anthropic.com/v1/messages", body,
+                              mapOf("x-api-key" to key, "anthropic-version" to "2023-06-01"))
+                          if (code >= 300) { hist.removeAt(hist.lastIndex); return "Sorry ma'am, my brain returned error $code. Check the key." }
+                          out = JSONObject(s).getJSONArray("content").getJSONObject(0).getString("text")
+                      }
+                      hist.add("assistant" to out)
+                      out
+                  } catch (e: Exception) {
+                      hist.removeAt(hist.lastIndex)
+                      "Sorry ma'am, I could not reach my brain. Check the internet."
+                  }
+              }
+          }
+          ALVIS_EOF
+          cat > app/src/main/java/com/jessie/alvis/AlvisService.kt <<'ALVIS_EOF'
+          package com.jessie.alvis
+
+          import android.accessibilityservice.AccessibilityService
+          import android.app.*
+          import android.content.Intent
+          import android.content.pm.ServiceInfo
+          import android.os.*
+          import android.provider.Settings
+          import android.speech.*
+          import android.speech.tts.TextToSpeech
+          import android.speech.tts.UtteranceProgressListener
+          import java.text.SimpleDateFormat
+          import java.util.*
+
+          class AlvisService : Service(), TextToSpeech.OnInitListener {
+              private lateinit var tts: TextToSpeech
+              private var rec: SpeechRecognizer? = null
+              private val h = Handler(Looper.getMainLooper())
+              private var cmd = false
+              private var confirm = false
+              private var vi = 0
+              private var after: (() -> Unit)? = null
+              private val wake = listOf("alvis", "alvus", "elvis", "albus", "alvas", "all vis")
+
+              override fun onBind(i: Intent?): IBinder? = null
+
+              override fun onCreate() {
+                  super.onCreate()
+                  getSystemService(NotificationManager::class.java)
+                      .createNotificationChannel(NotificationChannel("a", "Alvis", NotificationManager.IMPORTANCE_LOW))
+                  val n = Notification.Builder(this, "a").setContentTitle("Alvis is listening for his name")
+                      .setSmallIcon(android.R.drawable.ic_btn_speak_now).build()
+                  if (Build.VERSION.SDK_INT >= 29) startForeground(1, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE)
+                  else startForeground(1, n)
+                  tts = TextToSpeech(this, this)
+              }
+
+              override fun onInit(s: Int) {
+                  tts.language = Locale.UK
+                  pickVoice()
+                  tts.setPitch(0.85f); tts.setSpeechRate(0.92f)
+                  tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                      override fun onStart(id: String?) {}
+                      override fun onDone(id: String?) { h.post { after?.invoke() } }
+                      @Deprecated("x") override fun onError(id: String?) { h.post { after?.invoke() } }
+                  })
+                  say("Alvis online. At your service, ma'am.") { listen() }
+              }
+
+              private fun maleVoices(): List<android.speech.tts.Voice> {
+                  val ok = Regex("en-gb-x-(rjs|gbb|gbd)|en-us-x-(iol|iom|tpd)")
+                  return (tts.voices ?: emptySet()).filter { ok.containsMatchIn(it.name.lowercase()) }
+                      .sortedBy { if (it.locale == Locale.UK) 0 else 1 }
+              }
+
+              private fun pickVoice() {
+                  val m = maleVoices()
+                  if (m.isNotEmpty()) tts.voice = m[vi % m.size]
+              }
+
+              private fun say(t: String, then: () -> Unit) {
+                  h.post { rec?.destroy(); rec = null }
+                  after = then
+                  tts.speak(t, TextToSpeech.QUEUE_FLUSH, null, "u")
+              }
+
+              private fun listen() {
+                  h.post {
+                      rec?.destroy()
+                      val r = SpeechRecognizer.createSpeechRecognizer(this); rec = r
+                      r.setRecognitionListener(object : RecognitionListener {
+                          override fun onResults(b: Bundle?) {
+                              heard(b?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull() ?: "")
+                          }
+                          override fun onError(e: Int) { cmd = false; h.postDelayed({ listen() }, 700) }
+                          override fun onReadyForSpeech(p: Bundle?) {}
+                          override fun onBeginningOfSpeech() {}
+                          override fun onRmsChanged(v: Float) {}
+                          override fun onBufferReceived(b: ByteArray?) {}
+                          override fun onEndOfSpeech() {}
+                          override fun onPartialResults(b: Bundle?) {}
+                          override fun onEvent(t: Int, b: Bundle?) {}
+                      })
+                      r.startListening(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+                          .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM))
+                  }
+              }
+
+              private fun heard(raw: String) {
+                  val t = raw.lowercase().trim()
+                  if (!cmd) {
+                      val w = wake.firstOrNull { t.contains(it) }
+                      if (w == null) { listen(); return }
+                      val rest = t.substringAfter(w).trim(' ', ',', '.')
+                      if (rest.length > 2) run(rest) else { cmd = true; say("At your service, ma'am.") { listen() } }
+                  } else { cmd = false; run(t) }
+              }
+
+              private fun run(t: String) {
+                  if (confirm) {
+                      confirm = false
+                      if (t.contains("yes") || t.contains("confirm") || t.contains("do it"))
+                          say("Powering down, ma'am.") { ControlService.powerOff(); listen() }
+                      else say("Cancelled.") { listen() }
+                      return
+                  }
+                  when {
+                      t.contains("change voice") || t.contains("different voice") ->
+                          say("How about this voice, ma'am?") { vi++; pickVoice(); listen() }
+                      t.contains("time") -> say("It is " + SimpleDateFormat("h:mm a", Locale.US).format(Date()) + ", ma'am.") { listen() }
+                      t.contains("battery") || t.contains("charge") -> {
+                          val b = getSystemService(BatteryManager::class.java).getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+                          say("Battery is at $b percent." + (if (b < 20) " You should charge soon, ma'am." else "")) { listen() }
+                      }
+                      t.contains("shut") || t.contains("power off") ->
+                          say("Are you sure, ma'am?") { confirm = true; cmd = true; listen() }
+                      t.contains("go home") -> { ControlService.global(AccessibilityService.GLOBAL_ACTION_HOME); say("Done, ma'am.") { listen() } }
+                      t.contains("go back") -> { ControlService.global(AccessibilityService.GLOBAL_ACTION_BACK); say("Done, ma'am.") { listen() } }
+                      t.contains("open settings") -> {
+                          val ok = ControlService.launch(Intent(Settings.ACTION_SETTINGS))
+                          say(if (ok) "Opening settings." else "Please turn on phone control first, ma'am.") { listen() }
+                      }
+                      t.startsWith("open ") -> openApp(t.removePrefix("open ").trim())
+                      else -> Thread {
+                          val key = getSharedPreferences("alvis", MODE_PRIVATE).getString("key", "") ?: ""
+                          say(Brain.ask(key, t)) { listen() }
+                      }.start()
+                  }
+              }
+
+              private fun openApp(name: String) {
+                  val pm = packageManager
+                  val app = pm.getInstalledApplications(0).firstOrNull {
+                      pm.getApplicationLabel(it).toString().lowercase().contains(name) && pm.getLaunchIntentForPackage(it.packageName) != null
+                  }
+                  if (app == null) { say("I cannot find $name, ma'am.") { listen() }; return }
+                  val ok = ControlService.launch(pm.getLaunchIntentForPackage(app.packageName)!!)
+                  say(if (ok) "Opening $name." else "Please turn on phone control first, ma'am.") { listen() }
+              }
+
+              override fun onDestroy() { rec?.destroy(); tts.shutdown(); super.onDestroy() }
+          }
+          ALVIS_EOF
+          cat > app/src/main/AndroidManifest.xml <<'ALVIS_EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.INTERNET"/>
+              <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+              <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+              <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
+              <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+              <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+              <queries><intent><action android:name="android.speech.RecognitionService"/></intent></queries>
+              <application android:label="Alvis" android:icon="@android:drawable/ic_btn_speak_now"
+                  android:theme="@android:style/Theme.DeviceDefault.Light">
+                  <activity android:name=".MainActivity" android:exported="true">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN"/>
+                          <category android:name="android.intent.category.LAUNCHER"/>
+                      </intent-filter>
+                  </activity>
+                  <service android:name=".AlvisService" android:exported="false" android:foregroundServiceType="microphone"/>
+                  <service android:name=".ControlService" android:exported="true" android:label="Alvis"
+                      android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+                      <intent-filter><action android:name="android.accessibilityservice.AccessibilityService"/></intent-filter>
+                      <meta-data android:name="android.accessibilityservice" android:resource="@xml/accessibility_config"/>
+                  </service>
+              </application>
+          </manifest>
+          ALVIS_EOF
+          cat > app/src/main/res/xml/accessibility_config.xml <<'ALVIS_EOF'
+          <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+              android:accessibilityEventTypes="typeWindowStateChanged"
+              android:accessibilityFeedbackType="feedbackGeneric"
+              android:canRetrieveWindowContent="true"
+              android:description="@string/ctl_desc"/>
+          ALVIS_EOF
+          cat > app/src/main/res/values/strings.xml <<'ALVIS_EOF'
+          <resources><string name="ctl_desc">Lets Alvis open apps, press Home and Back, and use the power menu when you ask.</string></resources>
+          ALVIS_EOF
+          cat > settings.gradle.kts <<'ALVIS_EOF'
+          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+          dependencyResolutionManagement { repositories { google(); mavenCentral() } }
+          rootProject.name = "Alvis"
+          include(":app")
+          ALVIS_EOF
+          cat > build.gradle.kts <<'ALVIS_EOF'
+          plugins {
+              id("com.android.application") version "8.2.2" apply false
+              id("org.jetbrains.kotlin.android") version "1.9.22" apply false
+          }
+          ALVIS_EOF
+          cat > app/build.gradle.kts <<'ALVIS_EOF'
+          plugins { id("com.android.application"); id("org.jetbrains.kotlin.android") }
+          android {
+              namespace = "com.jessie.alvis"
+              compileSdk = 34
+              defaultConfig { applicationId = "com.jessie.alvis"; minSdk = 26; targetSdk = 34; versionCode = 1; versionName = "1.0" }
+              signingConfigs {
+                  getByName("debug") {
+                      storeFile = file("debug.keystore"); storePassword = "android"
+                      keyAlias = "androiddebugkey"; keyPassword = "android"
+                  }
+              }
+              compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
+              kotlinOptions { jvmTarget = "17" }
+          }
+          ALVIS_EOF
+      - name: Build
+        run: gradle assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Alvis-app
+          path: app/build/outputs/apk/debug/app-debug.apk
